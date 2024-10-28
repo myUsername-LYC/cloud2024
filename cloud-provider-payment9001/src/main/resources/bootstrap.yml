@@ -1,0 +1,22 @@
+#spring:
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 127.0.0.1:8848
+#      config:
+#        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+##        import-check:
+##          enabled: false
+#        file-extension: yaml
+#        namespace: 65040bdf-0d67-4c6d-bb14-e26dee1617fb
+#  config:
+#    import:
+#      - optional:nacos:application-@profiles.active@.yml
+#      - optional:nacos:${spring.application.name}-@profiles.active@.yml
+
+
+# nacos config 有三种配置文件的方式，优先级依次降低
+# (1)${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+# (2)spring.cloud.nacos.config.extension-configs[0].data-id=ext-config-common01.yaml
+# (3)spring.cloud.nacos.config.shared-configs[0].data-id=common.yaml
+#也可以使用spring.config.import来引入

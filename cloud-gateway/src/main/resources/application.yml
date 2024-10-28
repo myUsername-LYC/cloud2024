@@ -1,0 +1,87 @@
+server:
+  port: 9527
+
+spring:
+  application:
+    name: cloud-gateway #以微服务注册进consul或nacos服务列表内
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        #        import-check:
+        #          enabled: false
+        file-extension: yaml
+        namespace: 65040bdf-0d67-4c6d-bb14-e26dee1617fb
+  config:
+    import:
+      - optional:nacos:application-@profiles.active@.${spring.cloud.nacos.config.file-extension}
+      - optional:nacos:${spring.application.name}-@profiles.active@.${spring.cloud.nacos.config.file-extension}
+
+
+#    consul: #配置consul地址
+#      host: localhost
+#      port: 8500
+#      discovery:
+#        prefer-ip-address: true
+#        service-name: ${spring.application.name}
+#        网关配置
+    gateway:
+      routes:
+        - id: consumer-service1
+#          uri: lb://cloud-consumer-order
+          uri: http://127.0.0.1:81
+          predicates:
+            - Path=/con/** #路径匹配
+#            - After=2024-10-18T14:20:30.0+08:00[Asia/Shanghai] # 在此时间之后
+#            - Before=2024-10-18T14:22:30.0+08:00[Asia/Shanghai]  # 在此时间之前
+#            - Between=2024-10-18T14:43:30.0+08:00[Asia/Shanghai], 2024-10-18T14:44:00.0+08:00[Asia/Shanghai] #在此时间之间
+#            - Cookie=chocolate, ch.*   # 匹配Cookie值
+#            - Header=X-Request-Id, \d+    # 匹配请求头值
+#            - Host=**.somehost.org, localhost # 匹配Host地址
+#            - Method=GET,POST   # 匹配请求方式
+#            - Query=color, green.*, # 匹配请求参数,支持正则表达式
+#            - Weight=payment, 8 #配置权重
+#            - RemoteAddr=192.168.1.1/24 # 外部访问我的IP限制，最大跨度不超过32，目前是1~24它们是 CIDR 表示法。
+#            - My=websocket
+
+
+        - id: payment-service1
+          uri: http://127.0.0.1:8001
+          predicates:
+            - Path=/pay/**
+#            - Weight=payment, 8
+
+#            - Path=/gateway/**  和 PrefixPath大配置使用
+#            - Path=/customPath/{segment} 和 SetPath配置一起使用，{segment}是占位符，只能匹配'/'分隔的一段路径
+          filters:
+            # 配置自定义网关过滤器
+            - name: My
+              args:
+                enabled: true
+                ignoreUrls:
+                  - /pay/gateway/info
+#            - AddRequestHeader=X-Request-atguigu1,atguiguValue1  # 请求头kv，若一头含有多参则重写一行设置
+#            - AddRequestHeader=X-Request-atguigu2,atguiguValue2
+#            - RemoveRequestHeader=sec-fetch-site      # 删除请求头sec-fetch-site
+#            - SetRequestHeader=sec-fetch-mode, Blue-updatebyzzyy # 将请求头sec-fetch-mode对应的值修改为Blue-updatebyzzyy
+
+#            - AddRequestParameter=customerId,9527001 # 新增请求参数Parameter：k ，v
+#            - RemoveRequestParameter=customerName   # 删除url请求参数customerName，你传递过来也是null
+
+#            - AddResponseHeader=X-Response-atguigu, BlueResponse # 新增请求参数X-Response-atguigu并设值为BlueResponse
+#            - SetResponseHeader=Date,2099-11-11 # 设置回应头Date值为2099-11-11
+#            - RemoveResponseHeader=Content-Type # 将默认自带Content-Type回应属性删除
+
+#            - PrefixPath=/pay # 拼接路径前缀
+#            - SetPath=/pay/gateway/{segment}
+#            - RedirectTo=302, http://www.baidu.com/ # 访问http://localhost:9527/pay/gateway/filter跳转到http://www.baidu.com/
+      default-filters: #全局filter
+        - AddResponseHeader=X-Response-atguigu, BlueResponse
+
+#        - id: payment-service2
+#          uri: http://127.0.0.1:8002
+#          predicates:
+#            - Path=/pay/**
+#            - Weight=payment, 2

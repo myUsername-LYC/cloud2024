@@ -1,0 +1,35 @@
+server:
+  port: 9001
+
+spring:
+  profiles:
+    active: @profiles.active@ # 多环境配置加载内容dev/prod,不写就是默认default配置
+  application:
+    name: cloud-payment-service-nacos
+    ####Spring Cloud Consul for Service Discovery
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8080 #配置Sentinel dashboard控制台服务地址
+        port: 8719 #默认8719端口，假如被占用会自动从8719开始依次+1扫描,直至找到未被占用的端口
+      web-context-unify: false # controller层的方法对service层调用不认为是同一个根链路
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+#        import-check:
+#          enabled: false
+        file-extension: yaml
+        namespace: 65040bdf-0d67-4c6d-bb14-e26dee1617fb
+  config:
+      import:
+        - optional:nacos:application-@profiles.active@.${spring.cloud.nacos.config.file-extension}
+        - optional:nacos:${spring.application.name}-@profiles.active@.${spring.cloud.nacos.config.file-extension}
+
+
+
+
+
+logging:
+  level:
+    com.code.cloud: debug
